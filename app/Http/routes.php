@@ -29,4 +29,8 @@ Route::group(['middleware' => 'auth'], function () {
         return view('posts.post_list');
     });
 
+    Route::get('posts/new', function () {
+        return view('posts.new_post');
+    });
+
 });
