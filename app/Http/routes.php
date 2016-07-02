@@ -25,4 +25,8 @@ Route::group(['middleware' => 'auth'], function () {
         return view('users.user_list');
     });
 
+    Route::get('posts', function () {
+        return view('posts.post_list');
+    });
+
 });
