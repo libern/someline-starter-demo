@@ -1,0 +1,70 @@
+{
+    "name": "libern/someline-starter",
+    "description": "Someline Starter is a framework for quick building Web Apps or APIs, with modern PHP design pattern foundation, which is built on top of popular Laravel 5 framework, Vue.js, Restful API, Repository Design, OAuth2, JWT, Unit Tests, isolated front-end and back-end layer.",
+    "keywords": ["framework", "laravel", "vuejs", "restful", "api", "oauth", "jwt"],
+    "license": "MIT",
+    "type": "project",
+    "require": {
+        "php": ">=5.5.9",
+        "ext-pdo_sqlite": "*",
+        "laravel/framework": "5.2.*",
+        "predis/predis": "~1.0",
+        "doctrine/dbal": "~2.3",
+        "itsgoingd/clockwork": "~1.10",
+        "dingo/api": "1.0.x@dev",
+        "lucadegasperi/oauth2-server-laravel": "5.1.*",
+        "guzzlehttp/guzzle": "~6.0",
+        "lukasoppermann/http-status": "^2.0",
+        "prettus/l5-repository": "^2.1",
+        "prettus/laravel-validation": "1.1.*",
+        "intervention/image": "^2.3",
+        "intervention/imagecache": "~2.1",
+        "cviebrock/image-validator": "2.0.*@beta",
+        "barryvdh/laravel-ide-helper": "^2.1",
+        "tymon/jwt-auth": "0.5.*"
+    },
+    "require-dev": {
+        "fzaninotto/faker": "~1.4",
+        "mockery/mockery": "0.9.*",
+        "phpunit/phpunit": "~4.0",
+        "symfony/css-selector": "2.8.*|3.0.*",
+        "symfony/dom-crawler": "2.8.*|3.0.*"
+    },
+    "autoload": {
+        "classmap": [
+            "database"
+        ],
+        "files": [
+            "app/Helpers/Helpers.php"
+        ],
+        "psr-4": {
+            "Someline\\": "app/"
+        }
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/TestCase.php"
+        ]
+    },
+    "scripts": {
+        "post-root-package-install": [
+            "php -r \"copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "php artisan key:generate"
+        ],
+        "post-install-cmd": [
+            "Illuminate\\Foundation\\ComposerScripts::postInstall",
+            "php artisan optimize"
+        ],
+        "post-update-cmd": [
+            "Illuminate\\Foundation\\ComposerScripts::postUpdate",
+            "php artisan ide-helper:generate",
+            "php artisan ide-helper:meta",
+            "php artisan optimize"
+        ]
+    },
+    "config": {
+        "preferred-install": "dist"
+    }
+}
