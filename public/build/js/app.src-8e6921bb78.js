@@ -5372,7 +5372,8 @@ function restoreState (vm, state, isRoot) {
 }
 
 function format (id) {
-  return id.match(/[^\/]+\.vue$/)[0]
+  var match = id.match(/[^\/]+\.vue$/)
+  return match ? match[0] : id
 }
 
 },{}],5:[function(require,module,exports){
@@ -6755,7 +6756,7 @@ module.exports = plugin;
 },{}],6:[function(require,module,exports){
 (function (process,global){
 /*!
- * Vue.js v1.0.25
+ * Vue.js v1.0.26
  * (c) 2016 Evan You
  * Released under the MIT License.
  */
@@ -10165,7 +10166,7 @@ function traverse(val, seen) {
   }
   var isA = isArray(val);
   var isO = isObject(val);
-  if (isA || isO) {
+  if ((isA || isO) && Object.isExtensible(val)) {
     if (val.__ob__) {
       var depId = val.__ob__.dep.id;
       if (seen.has(depId)) {
@@ -11651,13 +11652,13 @@ var select = {
     this.vm.$on('hook:attached', function () {
       nextTick(_this.forceUpdate);
     });
+    if (!inDoc(el)) {
+      nextTick(this.forceUpdate);
+    }
   },
 
   update: function update(value) {
     var el = this.el;
-    if (!inDoc(el)) {
-      return nextTick(this.forceUpdate);
-    }
     el.selectedIndex = -1;
     var multi = this.multiple && isArray(value);
     var options = el.options;
@@ -16605,7 +16606,13 @@ var filters = {
 
   pluralize: function pluralize(value) {
     var args = toArray(arguments, 1);
-    return args.length > 1 ? args[value % 10 - 1] || args[args.length - 1] : args[0] + (value === 1 ? '' : 's');
+    var length = args.length;
+    if (length > 1) {
+      var index = value % 10 - 1;
+      return index in args ? args[index] : args[length - 1];
+    } else {
+      return args[0] + (value === 1 ? '' : 's');
+    }
   },
 
   /**
@@ -16807,7 +16814,7 @@ function installGlobalAPI (Vue) {
 
 installGlobalAPI(Vue);
 
-Vue.version = '1.0.25';
+Vue.version = '1.0.26';
 
 // devtools global hook
 /* istanbul ignore next */
@@ -16854,6 +16861,10 @@ var _UserList = require('./vue/components/UserList.vue');
 
 var _UserList2 = _interopRequireDefault(_UserList);
 
+var _PostList = require('./vue/components/Post/PostList.vue');
+
+var _PostList2 = _interopRequireDefault(_PostList);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
@@ -16861,7 +16872,8 @@ exports.default = {
         msg: "hello"
     },
     components: {
-        'lt-user-list': _UserList2.default
+        'lt-user-list': _UserList2.default,
+        'lt-post-list': _PostList2.default
     },
     methods: {},
     events: {},
@@ -16870,7 +16882,7 @@ exports.default = {
     }
 };
 
-},{"./vue/components/UserList.vue":10}],9:[function(require,module,exports){
+},{"./vue/components/Post/PostList.vue":10,"./vue/components/UserList.vue":12}],9:[function(require,module,exports){
 'use strict';
 
 var _moment = require('moment');
@@ -16929,7 +16941,104 @@ window.moment = _moment2.default;
 
 new _vue2.default(_app2.default).$mount('#app');
 
-},{"./app":8,"./vue/directives/focus":12,"./vue/essentials/autosize-textarea.vue":13,"./vue/mixins/jquery":14,"./vue/mixins/tools":15,"./vue/mixins/user":16,"moment":2,"vue":6,"vue-resource":5}],10:[function(require,module,exports){
+},{"./app":8,"./vue/directives/focus":14,"./vue/essentials/autosize-textarea.vue":15,"./vue/mixins/jquery":16,"./vue/mixins/tools":17,"./vue/mixins/user":18,"moment":2,"vue":6,"vue-resource":5}],10:[function(require,module,exports){
+var __vueify_insert__ = require("vueify/lib/insert-css")
+var __vueify_style__ = __vueify_insert__.insert("\n")
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _PostListGroupItem = require('./PostListGroupItem.vue');
+
+var _PostListGroupItem2 = _interopRequireDefault(_PostListGroupItem);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+    data: function data() {
+        return {
+            //                msg: 'hello vue',
+            items: []
+        };
+    },
+
+    components: {
+        'lt-post-list-item': _PostListGroupItem2.default
+    },
+    http: {
+        root: '/api',
+        headers: {
+            Accept: 'application/x.someline.v1+json'
+        }
+    },
+    ready: function ready() {
+        console.log('Ready');
+
+        var resource = this.$resource('posts', {
+            //                include: ''
+        });
+
+        // get item
+        resource.get({}).then(function (response) {
+            console.log(response);
+            console.log(response.data.data);
+            this.$set('items', response.data.data);
+        });
+    }
+};
+if (module.exports.__esModule) module.exports = module.exports.default
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\n<div class=\"list-group list-group-lg list-group-sp\">\n    <template v-for=\"item of items\">\n        <div class=\"col-md-4 m-b-sm\">\n            <lt-post-list-item :item=\"item\"></lt-post-list-item>\n        </div>\n    </template>\n</div>\n\n"
+if (module.hot) {(function () {  module.hot.accept()
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  module.hot.dispose(function () {
+    __vueify_insert__.cache["\n"] = false
+    document.head.removeChild(__vueify_style__)
+  })
+  if (!module.hot.data) {
+    hotAPI.createRecord("_v-f462ac9e", module.exports)
+  } else {
+    hotAPI.update("_v-f462ac9e", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+  }
+})()}
+},{"./PostListGroupItem.vue":11,"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],11:[function(require,module,exports){
+var __vueify_insert__ = require("vueify/lib/insert-css")
+var __vueify_style__ = __vueify_insert__.insert("\n/*body {*/\n/*background-color: #ff0000;*/\n/*}*/\n")
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = {
+    props: ['item'],
+    data: function data() {
+        return {
+            //                msg: 'hello vue'
+        };
+    },
+
+    computed: {}
+};
+if (module.exports.__esModule) module.exports = module.exports.default
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n<div class=\"list-group-item clearfix\">\n    <span class=\"pull-left thumb-sm avatar m-r\">\n        <img src=\"https://www.someline.com/en/user/profilephoto/origin/f4ccc4de78c03fe2c321490cf6f8157f825e4c4f.jpg\" alt=\"...\">\n    </span>\n    <span class=\"clear\">\n        <span>{{ item.title }}</span>\n        <p class=\"text-muted\">{{ item.body }}</p>\n        <!--<pre>{{ item | json }}</pre>-->\n    </span>\n</div>\n"
+if (module.hot) {(function () {  module.hot.accept()
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  module.hot.dispose(function () {
+    __vueify_insert__.cache["\n/*body {*/\n/*background-color: #ff0000;*/\n/*}*/\n"] = false
+    document.head.removeChild(__vueify_style__)
+  })
+  if (!module.hot.data) {
+    hotAPI.createRecord("_v-c0e0069e", module.exports)
+  } else {
+    hotAPI.update("_v-c0e0069e", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+  }
+})()}
+},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],12:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n")
 'use strict';
@@ -16987,12 +17096,12 @@ if (module.hot) {(function () {  module.hot.accept()
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-6182c4d7", module.exports)
+    hotAPI.createRecord("_v-16883a15", module.exports)
   } else {
-    hotAPI.update("_v-6182c4d7", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-16883a15", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"./UserListGroupItem.vue":11,"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],11:[function(require,module,exports){
+},{"./UserListGroupItem.vue":13,"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],13:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n/*body {*/\n/*background-color: #ff0000;*/\n/*}*/\n")
 'use strict';
@@ -17021,12 +17130,12 @@ if (module.hot) {(function () {  module.hot.accept()
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-9f9de76a", module.exports)
+    hotAPI.createRecord("_v-e96ec666", module.exports)
   } else {
-    hotAPI.update("_v-9f9de76a", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-e96ec666", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],12:[function(require,module,exports){
+},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],14:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17041,7 +17150,7 @@ exports.default = {
     }
 };
 
-},{}],13:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n")
 'use strict';
@@ -17076,12 +17185,12 @@ if (module.hot) {(function () {  module.hot.accept()
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-581db108", module.exports)
+    hotAPI.createRecord("_v-3335418a", module.exports)
   } else {
-    hotAPI.update("_v-581db108", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-3335418a", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"autosize":1,"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],14:[function(require,module,exports){
+},{"autosize":1,"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],16:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17104,7 +17213,7 @@ exports.default = {
     }
 };
 
-},{}],15:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17145,7 +17254,7 @@ exports.default = {
     }
 };
 
-},{}],16:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
