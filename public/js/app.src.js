@@ -16865,6 +16865,10 @@ var _PostList = require('./vue/components/Post/PostList.vue');
 
 var _PostList2 = _interopRequireDefault(_PostList);
 
+var _NewPost = require('./vue/components/Post/NewPost.vue');
+
+var _NewPost2 = _interopRequireDefault(_NewPost);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
@@ -16873,7 +16877,8 @@ exports.default = {
     },
     components: {
         'lt-user-list': _UserList2.default,
-        'lt-post-list': _PostList2.default
+        'lt-post-list': _PostList2.default,
+        'lt-new-post': _NewPost2.default
     },
     methods: {},
     events: {},
@@ -16882,7 +16887,7 @@ exports.default = {
     }
 };
 
-},{"./vue/components/Post/PostList.vue":10,"./vue/components/UserList.vue":12}],9:[function(require,module,exports){
+},{"./vue/components/Post/NewPost.vue":10,"./vue/components/Post/PostList.vue":11,"./vue/components/UserList.vue":13}],9:[function(require,module,exports){
 'use strict';
 
 var _moment = require('moment');
@@ -16941,7 +16946,84 @@ window.moment = _moment2.default;
 
 new _vue2.default(_app2.default).$mount('#app');
 
-},{"./app":8,"./vue/directives/focus":14,"./vue/essentials/autosize-textarea.vue":15,"./vue/mixins/jquery":16,"./vue/mixins/tools":17,"./vue/mixins/user":18,"moment":2,"vue":6,"vue-resource":5}],10:[function(require,module,exports){
+},{"./app":8,"./vue/directives/focus":15,"./vue/essentials/autosize-textarea.vue":16,"./vue/mixins/jquery":17,"./vue/mixins/tools":18,"./vue/mixins/user":19,"moment":2,"vue":6,"vue-resource":5}],10:[function(require,module,exports){
+var __vueify_insert__ = require("vueify/lib/insert-css")
+var __vueify_style__ = __vueify_insert__.insert("\n")
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = {
+    props: ['header'],
+    data: function data() {
+        return {
+            form_data: {
+                is_recommended: false
+            },
+            error_message: null,
+            isUpdating: false
+        };
+    },
+
+    components: {},
+    methods: {
+        onSubmitForm: function onSubmitForm() {
+            console.log('onSubmitForm');
+
+            console.log(this.form_data);
+
+            var resource = this.$resource('posts', {});
+
+            // save data
+            this.error_message = null;
+            this.isUpdating = true;
+            resource.save({}, this.form_data).then(function (response) {
+                // success callback
+                console.log('Success');
+                console.log(response);
+                // redirect back when success
+                this.redirectToUrl('/posts');
+            }, function (response) {
+                // error callback
+                console.error('Error');
+                console.log(response);
+                if (response.data.message) {
+                    this.error_message = response.data.message;
+                }
+                this.isUpdating = false;
+            }).finally(function () {
+                // when completed
+            });
+        }
+    },
+    http: {
+        root: '/api',
+        headers: {
+            Accept: 'application/x.someline.v1+json'
+        }
+    },
+    ready: function ready() {
+        console.log('Ready');
+    }
+};
+if (module.exports.__esModule) module.exports = module.exports.default
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\n<div class=\"m-t-md\">\n\n    <h1>{{ header }}</h1>\n\n    <div class=\"panel panel-default\">\n        <div class=\"panel-heading font-bold\">New Post</div>\n        <div class=\"panel-body\">\n            <form @submit.prevent=\"onSubmitForm\" role=\"form\">\n                <div class=\"form-group\">\n                    <label>Title</label>\n                    <input type=\"text\" v-model=\"form_data.title\" class=\"form-control\" placeholder=\"Title\" required=\"\">\n                </div>\n                <div class=\"form-group\">\n                    <label>Body</label>\n                    <textarea v-model=\"form_data.body\" class=\"form-control\" rows=\"10\" required=\"\"></textarea>\n                </div>\n                <div class=\"form-group\">\n                    <label>Recommended</label>\n                    <div>\n                        <label class=\"i-switch i-switch-md bg-info m-t-xs m-r\">\n                            <input type=\"checkbox\" v-model=\"form_data.is_recommended\">\n                            <i></i>\n                        </label>\n                    </div>\n                </div>\n\n                <div class=\"alert alert-danger animated shake\" v-show=\"error_message\">\n                    {{ error_message }}\n                </div>\n\n                <button type=\"submit\" class=\"btn btn-sm btn-primary\" :disabled=\"isUpdating\">\n                    Save\n                </button>\n            </form>\n        </div>\n        <div class=\"panel-footer\">\n            <pre>{{ form_data | json }}</pre>\n        </div>\n    </div>\n\n</div>\n\n"
+if (module.hot) {(function () {  module.hot.accept()
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  module.hot.dispose(function () {
+    __vueify_insert__.cache["\n"] = false
+    document.head.removeChild(__vueify_style__)
+  })
+  if (!module.hot.data) {
+    hotAPI.createRecord("_v-518a7cdd", module.exports)
+  } else {
+    hotAPI.update("_v-518a7cdd", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+  }
+})()}
+},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],11:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n")
 'use strict';
@@ -17004,7 +17086,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-f462ac9e", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"./PostListGroupItem.vue":11,"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],11:[function(require,module,exports){
+},{"./PostListGroupItem.vue":12,"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],12:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n/*body {*/\n/*background-color: #ff0000;*/\n/*}*/\n")
 'use strict';
@@ -17038,7 +17120,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-c0e0069e", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],12:[function(require,module,exports){
+},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],13:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n")
 'use strict';
@@ -17101,7 +17183,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-16883a15", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"./UserListGroupItem.vue":13,"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],13:[function(require,module,exports){
+},{"./UserListGroupItem.vue":14,"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],14:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n/*body {*/\n/*background-color: #ff0000;*/\n/*}*/\n")
 'use strict';
@@ -17135,7 +17217,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-e96ec666", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],14:[function(require,module,exports){
+},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],15:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17150,7 +17232,7 @@ exports.default = {
     }
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n")
 'use strict';
@@ -17190,7 +17272,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-3335418a", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"autosize":1,"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],16:[function(require,module,exports){
+},{"autosize":1,"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],17:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17213,7 +17295,7 @@ exports.default = {
     }
 };
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17254,7 +17336,7 @@ exports.default = {
     }
 };
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
