@@ -34,7 +34,7 @@ class BaseApiTestCase extends TestCase implements Httpstatuscodes
         parent::setUp();
 
         $this->client = new GuzzleHttp\Client([
-            'base_uri' => 'http://someline-starter.app/api/',
+            'base_uri' => 'http://someline-starter-demo.app/api/',
             'exceptions' => false,
         ]);
     }

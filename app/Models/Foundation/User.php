@@ -69,4 +69,9 @@ class User extends BaseModel implements BaseModelEventsInterface,
 
     }
 
+    public function posts()
+    {
+        return $this->hasMany(Post::class, 'user_id', 'user_id');
+    }
+
 }

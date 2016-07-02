@@ -11,8 +11,15 @@ class Post extends BaseModel implements Transformable
 {
     use TransformableTrait;
 
+    protected $primaryKey = 'post_id';
+
     protected $fillable = [
         'title', 'body', 'is_recommended',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'user_id');
+    }
 
 }

@@ -3,6 +3,7 @@
 namespace Someline\Repositories\Eloquent;
 
 use Prettus\Repository\Criteria\RequestCriteria;
+use Someline\Presenters\PostPresenter;
 use Someline\Repositories\Interfaces\PostRepository;
 use Someline\Models\Foundation\Post;
 use Someline\Validators\PostValidator;
@@ -34,6 +35,15 @@ class PostRepositoryEloquent extends BaseRepository implements PostRepository
         return PostValidator::class;
     }
 
+    /**
+     * Specify Presenter class name
+     *
+     * @return string
+     */
+    public function presenter()
+    {
+        return PostPresenter::class;
+    }
 
     /**
      * Boot up the repository, pushing criteria

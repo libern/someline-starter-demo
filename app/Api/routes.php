@@ -42,15 +42,32 @@ $api->version('v1', [
         // Rate: 100 requests per 5 minutes
         $api->group(['middleware' => ['api.throttle'], 'limit' => 100, 'expires' => 5], function (\Dingo\Api\Routing\Router $api) {
 
-            $api->get('users', 'UsersController@index');
+            // users
+            $api->group(['prefix' => 'users'], function (\Dingo\Api\Routing\Router $api) {
+                $api->get('/', 'UsersController@index');
 
-            $api->get('users/me', 'UsersController@me');
+                $api->get('/me', 'UsersController@me');
 
-            $api->get('users/{id}', 'UsersController@show');
+                $api->get('/{id}', 'UsersController@show');
 
-            $api->put('users/{id}', 'UsersController@update');
+                $api->put('/{id}', 'UsersController@update');
 
-            $api->delete('users/{id}', 'UsersController@destroy');
+                $api->delete('/{id}', 'UsersController@destroy');
+            });
+
+            // posts
+            $api->group(['prefix' => 'posts'], function (\Dingo\Api\Routing\Router $api) {
+
+                $api->get('/', 'PostsController@index');
+                $api->post('/', 'PostsController@store');
+
+                $api->get('/{id}', 'PostsController@show');
+
+                $api->put('/{id}', 'PostsController@update');
+
+                $api->delete('/{id}', 'PostsController@destroy');
+
+            });
 
         });
 

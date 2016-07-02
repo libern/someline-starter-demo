@@ -27,3 +27,10 @@ $factory->define(\Someline\Models\Foundation\User::class, function (Faker\Genera
         'status' => 1,
     ];
 });
+
+$factory->define(\Someline\Models\Foundation\Post::class, function (Faker\Generator $faker) {
+    return [
+        'title' => $faker->title,
+        'body' => $faker->paragraphs(3, true),
+    ];
+});

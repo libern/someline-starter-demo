@@ -2,6 +2,8 @@
 
 namespace Someline\Api\Controllers;
 
+use Dingo\Api\Exception\DeleteResourceFailedException;
+use Dingo\Api\Exception\UpdateResourceFailedException;
 use Illuminate\Http\Request;
 
 use Someline\Http\Requests;
@@ -30,7 +32,7 @@ class PostsController extends BaseController
     public function __construct(PostRepository $repository, PostValidator $validator)
     {
         $this->repository = $repository;
-        $this->validator  = $validator;
+        $this->validator = $validator;
     }
 
 
@@ -41,32 +43,9 @@ class PostsController extends BaseController
      */
     public function index()
     {
-
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
-        $posts = $this->repository->all();
-
-        if (request()->wantsJson()) {
-
-            return response()->json([
-                'data' => $posts,
-            ]);
-        }
-
-        return view('posts.index', compact('posts'));
+        return $this->repository->all();
     }
-
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-
-        return view('posts.create');
-    }
-
 
     /**
      * Store a newly created resource in storage.
@@ -78,33 +57,18 @@ class PostsController extends BaseController
     public function store(PostCreateRequest $request)
     {
 
-        try {
+        $data = $request->all();
 
-            $this->validator->with($request->all())->passesOrFail(ValidatorInterface::RULE_CREATE);
+        $this->validator->with($data)->passesOrFail(ValidatorInterface::RULE_CREATE);
 
-            $post = $this->repository->create($request->all());
+        $post = $this->repository->create($data);
 
-            $response = [
-                'message' => 'Post created.',
-                'data'    => $post->toArray(),
-            ];
+        // A. return 201 created
+//            return $this->response->created(null);
 
-            if ($request->wantsJson()) {
+        // B. return data
+        return $post;
 
-                return response()->json($response);
-            }
-
-            return redirect()->back()->with('message', $response['message']);
-        } catch (ValidatorException $e) {
-            if ($request->wantsJson()) {
-                return response()->json([
-                    'error'   => true,
-                    'message' => $e->getMessageBag()
-                ]);
-            }
-
-            return redirect()->back()->withErrors($e->getMessageBag())->withInput();
-        }
     }
 
 
@@ -117,75 +81,30 @@ class PostsController extends BaseController
      */
     public function show($id)
     {
-        $post = $this->repository->find($id);
-
-        if (request()->wantsJson()) {
-
-            return response()->json([
-                'data' => $post,
-            ]);
-        }
-
-        return view('posts.show', compact('post'));
+        return $this->repository->find($id);
     }
-
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-
-        $post = $this->repository->find($id);
-
-        return view('posts.edit', compact('post'));
-    }
-
 
     /**
      * Update the specified resource in storage.
      *
      * @param  PostUpdateRequest $request
-     * @param  string            $id
+     * @param  string $id
      *
      * @return Response
      */
     public function update(PostUpdateRequest $request, $id)
     {
 
-        try {
+        $this->validator->with($request->all())->passesOrFail(ValidatorInterface::RULE_UPDATE);
 
-            $this->validator->with($request->all())->passesOrFail(ValidatorInterface::RULE_UPDATE);
+        $post = $this->repository->update($request->all(), $id);
 
-            $post = $this->repository->update($request->all(), $id);
+        // throw exception if update failed
+//        throw new UpdateResourceFailedException();
 
-            $response = [
-                'message' => 'Post updated.',
-                'data'    => $post->toArray(),
-            ];
+        // Updated, return 204 No Content
+        return $this->response->noContent();
 
-            if ($request->wantsJson()) {
-
-                return response()->json($response);
-            }
-
-            return redirect()->back()->with('message', $response['message']);
-        } catch (ValidatorException $e) {
-
-            if ($request->wantsJson()) {
-
-                return response()->json([
-                    'error'   => true,
-                    'message' => $e->getMessageBag()
-                ]);
-            }
-
-            return redirect()->back()->withErrors($e->getMessageBag())->withInput();
-        }
     }
 
 
@@ -200,14 +119,12 @@ class PostsController extends BaseController
     {
         $deleted = $this->repository->delete($id);
 
-        if (request()->wantsJson()) {
-
-            return response()->json([
-                'message' => 'Post deleted.',
-                'deleted' => $deleted,
-            ]);
+        if ($deleted) {
+            // Deleted, return 204 No Content
+            return $this->response->noContent();
+        } else {
+            // Failed, throw exception
+            throw new DeleteResourceFailedException();
         }
-
-        return redirect()->back()->with('message', 'Post deleted.');
     }
 }

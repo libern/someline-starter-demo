@@ -13,20 +13,23 @@ class PostTransformer extends BaseTransformer
 {
 
     /**
-     * Transform the \Post entity
-     * @param \Post $model
+     * Transform the Post entity
+     * @param Post $model
      *
      * @return array
      */
     public function transform(Post $model)
     {
         return [
-            'id'         => (int) $model->id,
+            'post_id' => (int)$model->post_id,
 
             /* place your other model properties here */
+            'title' => $model->title,
+            'body' => $model->body,
+            'is_recommended' => (boolean)$model->is_recommended,
 
-            'created_at' => $model->created_at,
-            'updated_at' => $model->updated_at
+            'created_at' => (string)$model->created_at,
+            'updated_at' => (string)$model->updated_at
         ];
     }
 }

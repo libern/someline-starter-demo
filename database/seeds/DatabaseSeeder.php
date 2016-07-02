@@ -13,5 +13,6 @@ class DatabaseSeeder extends Seeder
     {
          $this->call(OAuthClientSeeder::class);
          $this->call(UsersTableSeeder::class);
+         $this->call(PostsTableSeeder::class);
     }
 }
